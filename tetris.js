@@ -38,7 +38,6 @@ const SHAPES = [
 let canvas, ctx;
 let board = [];
 let currentPiece = null;
-let gameLoop = null;
 let dropCounter = 0;
 let dropInterval = INITIAL_DROP_INTERVAL;
 let lastTime = 0;
@@ -220,8 +219,9 @@ function clearLines() {
     if (linesCleared > 0) {
         lines += linesCleared;
         
-        // Add points based on lines cleared
-        score += LINE_CLEAR_POINTS[linesCleared] * level;
+        // Add points based on lines cleared (cap at 4 lines max)
+        const clearedIndex = Math.min(linesCleared, LINE_CLEAR_POINTS.length - 1);
+        score += LINE_CLEAR_POINTS[clearedIndex] * level;
         
         // Level up every 10 lines
         level = Math.floor(lines / 10) + 1;
