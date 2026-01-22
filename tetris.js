@@ -13,6 +13,15 @@ const COLORS = [
     '#3877FF'  // L
 ];
 
+// Scoring constants
+const INITIAL_DROP_INTERVAL = 1000; // milliseconds
+const MIN_DROP_INTERVAL = 100; // minimum drop speed at high levels
+const LEVEL_SPEED_INCREASE = 100; // speed increase per level
+const PAUSE_FONT_SIZE = '48px'; // font size for pause text
+
+// Line clear scoring: 1 line = 100, 2 lines = 300, 3 lines = 500, 4 lines = 800
+const LINE_CLEAR_POINTS = [0, 100, 300, 500, 800];
+
 // Tetromino shapes
 const SHAPES = [
     [], // Empty
@@ -31,7 +40,7 @@ let board = [];
 let currentPiece = null;
 let gameLoop = null;
 let dropCounter = 0;
-let dropInterval = 1000;
+let dropInterval = INITIAL_DROP_INTERVAL;
 let lastTime = 0;
 let score = 0;
 let lines = 0;
@@ -211,13 +220,12 @@ function clearLines() {
     if (linesCleared > 0) {
         lines += linesCleared;
         
-        // Scoring: 100 for 1 line, 300 for 2, 500 for 3, 800 for 4
-        const points = [0, 100, 300, 500, 800];
-        score += points[linesCleared] * level;
+        // Add points based on lines cleared
+        score += LINE_CLEAR_POINTS[linesCleared] * level;
         
         // Level up every 10 lines
         level = Math.floor(lines / 10) + 1;
-        dropInterval = Math.max(100, 1000 - (level - 1) * 100);
+        dropInterval = Math.max(MIN_DROP_INTERVAL, INITIAL_DROP_INTERVAL - (level - 1) * LEVEL_SPEED_INCREASE);
         
         updateScore();
     }
@@ -343,7 +351,7 @@ function togglePause() {
         ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
         ctx.fillRect(0, 0, canvas.width, canvas.height);
         ctx.fillStyle = '#fff';
-        ctx.font = '48px Arial';
+        ctx.font = PAUSE_FONT_SIZE + ' Arial';
         ctx.textAlign = 'center';
         ctx.fillText('PAUSED', canvas.width / 2, canvas.height / 2);
     } else {
@@ -372,7 +380,7 @@ function restart() {
     score = 0;
     lines = 0;
     level = 1;
-    dropInterval = 1000;
+    dropInterval = INITIAL_DROP_INTERVAL;
     dropCounter = 0;
     isPaused = false;
     isGameOver = false;
